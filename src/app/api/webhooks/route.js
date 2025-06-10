@@ -1,6 +1,6 @@
 import { Webhook } from 'svix';
 import { headers } from 'next/headers';
-//import { createOrUpdateUser, deleteUser } from '@/libs/actions/user';
+import { createOrUpdateUser, deleteUser } from '@/lib/actions/user';
 import { clerkClient } from '@clerk/nextjs/server';
 
 export async function POST(req) {
@@ -8,7 +8,7 @@ export async function POST(req) {
 
   if (!SIGNING_SECRET) {
     throw new Error(
-      'Error: Please add SIGNING_SECRET from Clerk Dashboard to .env or .env.local'
+      'Erro: Porfavor adiccione SIGNING_SECRET aparit do Clerk Dashboard do .env or .env.local'
     );
   }
 
@@ -23,7 +23,7 @@ export async function POST(req) {
 
   // If there are no headers, error out
   if (!svix_id || !svix_timestamp || !svix_signature) {
-    return new Response('Error: Missing Svix headers', {
+    return new Response('Erro: Nao foi encontado Svix headers', {
       status: 400,
     });
   }
@@ -42,7 +42,7 @@ export async function POST(req) {
       'svix-signature': svix_signature,
     });
   } catch (err) {
-    console.error('Error: Nao foi possivel vericar a webhook:', err);
+    console.error('Error: Could not verify webhook:', err);
     return new Response('Error: Verification error', {
       status: 400,
     });
@@ -50,60 +50,48 @@ export async function POST(req) {
 
   // Do something with payload
   // For this guide, log payload to console
-  const { id } = evt.data;
-  const eventType = evt.type;
+  const { id } = evt?.data;
+  const eventType = evt?.type;
 
- if (eventType === 'user.created'){
-  console.log('Usuario criado com suceso');
- } 
- if(eventType === 'user.updated'){
-  console.log('Usuario atualizado com suceso');
- }
- if(eventType === 'user.deleted'){
-  console.log('Usuario apagado com suceso');
- }
+  if (eventType === 'user.created' || eventType === 'user.updated') {
+    const { first_name, last_name, image_url, email_addresses } = evt?.data;
+    try {
+      const user = await createOrUpdateUser(
+        id,
+        first_name,
+        last_name,
+        image_url,
+        email_addresses
+      );
+      if (user && eventType === 'user.created') {
+        try {
+          await clerkClient.users.updateUserMetadata(id, {
+            publicMetadata: {
+              userMogoId: user._id,
+            },
+          });
+        } catch (error) {
+          console.log('Error: Could not update user metadata:', error);
+        }
+      }
+    } catch (error) {
+      console.log('Error: Could not create or update user:', error);
+      return new Response('Error: Could not create or update user', {
+        status: 400,
+      });
+    }
+  }
 
-  // if (eventType === 'user.created' || eventType === 'user.updated') {
-  //   const { first_name, last_name, image_url, email_addresses } = evt?.data;
-  //   try {
-  //     const user = await createOrUpdateUser(
-  //       id,
-  //       first_name,
-  //       last_name,
-  //       image_url,
-  //       email_addresses
-  //     );
-  //     if (user && eventType === 'user.created') {
-  //       console.log("criado com suceso");
-  //       try {
-  //         await clerkClient.users.updateUserMetadata(id, {
-  //           publicMetadata: {
-  //             userMogoId: user._id,
-  //           },
-  //         });
-  //       } catch (error) {
-  //         console.log('Error: Nao foi possivel atualizar usuario no metadata:', error);
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.log('Erro: Nao foi possivel criar ou atualizar usuario:', error);
-  //     return new Response('Erro: Nao foi possivel criar ou atualizar usuario', {
-  //       status: 400,
-  //     });
-  //   }
-  // }
-
-  // if (eventType === 'user.deleted') {
-  //   console.log("Apagado com suceso");
-  //   try {
-  //     await deleteUser(id);
-  //   } catch (error) {
-  //     console.log('Error: Nao foi possivel criar usuario:', error);
-  //     return new Response('Nao foi possivel criar usuario:', {
-  //       status: 400,
-  //     });
-  //   }
-  // }
+  if (eventType === 'user.deleted') {
+    try {
+      await deleteUser(id);
+    } catch (error) {
+      console.log('Error: Could not delete user:', error);
+      return new Response('Error: Could not delete user', {
+        status: 400,
+      });
+    }
+  }
 
   return new Response('Webhook received', { status: 200 });
 }
