@@ -63,6 +63,7 @@ export async function POST(req) {
         email_addresses
       );
       if (user && eventType === 'user.created') {
+        console.log("criado com suceso");
         try {
           await clerkClient.users.updateUserMetadata(id, {
             publicMetadata: {
@@ -82,6 +83,7 @@ export async function POST(req) {
   }
 
   if (eventType === 'user.deleted') {
+    console.log("Apagado com suceso");
     try {
       await deleteUser(id);
     } catch (error) {
