@@ -47,53 +47,63 @@ export async function POST(req) {
       status: 400,
     });
   }
-  
+
   // Do something with payload
   // For this guide, log payload to console
   const { id } = evt.data;
   const eventType = evt.type;
 
-  if (eventType === 'user.created' || eventType === 'user.updated') {
-    const { first_name, last_name, image_url, email_addresses } = evt?.data;
-    try {
-      const user = await createOrUpdateUser(
-        id,
-        first_name,
-        last_name,
-        image_url,
-        email_addresses
-      );
-      if (user && eventType === 'user.created') {
-        console.log("criado com suceso");
-        try {
-          await clerkClient.users.updateUserMetadata(id, {
-            publicMetadata: {
-              userMogoId: user._id,
-            },
-          });
-        } catch (error) {
-          console.log('Error: Nao foi possivel atualizar usuario no metadata:', error);
-        }
-      }
-    } catch (error) {
-      console.log('Erro: Nao foi possivel criar ou atualizar usuario:', error);
-      return new Response('Erro: Nao foi possivel criar ou atualizar usuario', {
-        status: 400,
-      });
-    }
-  }
+ if (eventType === 'user.created'){
+  console.log('Usuario criado com suceso');
+ } 
+ if(eventType === 'user.updated'){
+  console.log('Usuario atualizado com suceso');
+ }
+ if(eventType === 'user.deleted'){
+  console.log('Usuario apagado com suceso');
+ }
 
-  if (eventType === 'user.deleted') {
-    console.log("Apagado com suceso");
-    try {
-      await deleteUser(id);
-    } catch (error) {
-      console.log('Error: Nao foi possivel criar usuario:', error);
-      return new Response('Nao foi possivel criar usuario:', {
-        status: 400,
-      });
-    }
-  }
+  // if (eventType === 'user.created' || eventType === 'user.updated') {
+  //   const { first_name, last_name, image_url, email_addresses } = evt?.data;
+  //   try {
+  //     const user = await createOrUpdateUser(
+  //       id,
+  //       first_name,
+  //       last_name,
+  //       image_url,
+  //       email_addresses
+  //     );
+  //     if (user && eventType === 'user.created') {
+  //       console.log("criado com suceso");
+  //       try {
+  //         await clerkClient.users.updateUserMetadata(id, {
+  //           publicMetadata: {
+  //             userMogoId: user._id,
+  //           },
+  //         });
+  //       } catch (error) {
+  //         console.log('Error: Nao foi possivel atualizar usuario no metadata:', error);
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.log('Erro: Nao foi possivel criar ou atualizar usuario:', error);
+  //     return new Response('Erro: Nao foi possivel criar ou atualizar usuario', {
+  //       status: 400,
+  //     });
+  //   }
+  // }
+
+  // if (eventType === 'user.deleted') {
+  //   console.log("Apagado com suceso");
+  //   try {
+  //     await deleteUser(id);
+  //   } catch (error) {
+  //     console.log('Error: Nao foi possivel criar usuario:', error);
+  //     return new Response('Nao foi possivel criar usuario:', {
+  //       status: 400,
+  //     });
+  //   }
+  // }
 
   return new Response('Webhook received', { status: 200 });
 }
