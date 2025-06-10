@@ -12,11 +12,11 @@ export const connect = async () => {
 
   try {
     await mongoose.connect(process.env.MONGODB_URI, {
-      dbName: 'next-house',
+      dbName: 'next-imo',
     });
     initialized = true;
     console.log('MongoDB conectado com sucesso');
-    
+
   } catch (error) {
     console.log('Erro ao conectart MongoDB:', error);
   }
