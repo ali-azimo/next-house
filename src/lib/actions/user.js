@@ -25,7 +25,7 @@ export const createOrUpdateUser = async (
     );
     return user;
   } catch (error) {
-    console.log('Error: Could not create or update user:', error);
+    console.log('Erro: Nao foi possivel atualizar usuario', error);
   }
 };
 
@@ -34,6 +34,6 @@ export const deleteUser = async (id) => {
     await connect();
     await User.findOneAndDelete({ clerkId: id });
   } catch (error) {
-    console.log('Error: Could not delete user:', error);
+    console.log('Error: Nao possivel deletar usuario:', error);
   }
 };
