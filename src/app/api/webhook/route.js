@@ -42,7 +42,7 @@ export async function POST(req) {
       'svix-signature': svix_signature,
     });
   } catch (err) {
-    console.error('Error: Could not verify webhook:', err);
+    console.error('Error: Nao foi possivel vericar a webhook:', err);
     return new Response('Error: Verification error', {
       status: 400,
     });
@@ -70,12 +70,12 @@ export async function POST(req) {
             },
           });
         } catch (error) {
-          console.log('Error: Could not update user metadata:', error);
+          console.log('Error: Nao foi possivel atualizar usuario no metadata:', error);
         }
       }
     } catch (error) {
-      console.log('Error: Could not create or update user:', error);
-      return new Response('Error: Could not create or update user', {
+      console.log('Erro: Nao foi possivel criar ou atualizar usuario:', error);
+      return new Response('Erro: Nao foi possivel criar ou atualizar usuario', {
         status: 400,
       });
     }
@@ -85,8 +85,8 @@ export async function POST(req) {
     try {
       await deleteUser(id);
     } catch (error) {
-      console.log('Error: Could not delete user:', error);
-      return new Response('Error: Could not delete user', {
+      console.log('Error: Nao foi possivel criar usuario:', error);
+      return new Response('Nao foi possivel criar usuario:', {
         status: 400,
       });
     }
