@@ -50,6 +50,7 @@ export async function POST(req) {
 
   // Do something with payload
   // For this guide, log payload to console
+
   const { id } = evt?.data;
   const eventType = evt?.type;
 
